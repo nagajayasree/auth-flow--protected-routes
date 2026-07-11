@@ -7,6 +7,7 @@ import {
 import { app } from './firebase';
 
 const auth = getAuth(app);
+console.log('Auth', auth.currentUser);
 
 export type User = {
   name?: string;
@@ -31,6 +32,7 @@ export const login = async ({ email, password }: User) => {
   const response = await signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed in
+      console.log('userId',userCredential.user.uid);
       return userCredential.user;
     })
     .catch((error) => {
