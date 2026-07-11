@@ -3,8 +3,9 @@
 import { useState, SubmitEvent } from 'react';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { register } from '@/app/lib/auth';
+import Link from 'next/link';
 
-export default function RegisterFormDark() {
+export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,6 +21,9 @@ export default function RegisterFormDark() {
       console.log(error);
     } else {
       await register({ email, password });
+      setName('');
+      setEmail('');
+      setPassword('');
     }
   };
 
@@ -57,6 +61,7 @@ export default function RegisterFormDark() {
             <input
               type="email"
               name="email"
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="jane@example.com"
               className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
@@ -72,6 +77,7 @@ export default function RegisterFormDark() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 name="password"
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 8 characters"
                 className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30"
@@ -99,9 +105,9 @@ export default function RegisterFormDark() {
 
           <div className="flex items-center justify-center gap-2 text-sm">
             <span className="text-slate-400">Already have an account?</span>
-            <a href="#" className="text-sky-400 hover:text-sky-300">
-              Sign in
-            </a>
+            <Link href={'/login'} className="text-sky-400 hover:text-sky-300">
+              Log in
+            </Link>
           </div>
         </form>
       </div>
