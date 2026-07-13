@@ -1,25 +1,47 @@
 'use client';
 
 import { useState, SubmitEvent } from 'react';
-import { LuEye, LuEyeOff } from 'react-icons/lu';
-import { login } from '@/app/lib/auth';
+import { app } from '../../lib/firebase';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { login } from '@/app/actions/auth';
+
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [showPassword, setShowPassword] = useState<boolean>(false);
-
   const [error, setError] = useState('');
+
+  const router = useRouter();
+  const auth = getAuth(app);
 
   const onHandleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError('');
 
-    await login({ email, password });
-    console.log(email, password);
-    setEmail('');
-    setPassword('');
+    try {
+      const credentials = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const idToken = await credentials.user.getIdToken();
+      const result = await login(idToken);
+
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error: unknown) {
+      console.error(error);
+      setError('Invalid credentials. Check your email and password.');
+    }
   };
 
   return (
