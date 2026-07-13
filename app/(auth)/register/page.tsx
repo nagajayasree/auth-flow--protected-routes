@@ -1,9 +1,17 @@
 'use client';
 
 import { useState, SubmitEvent } from 'react';
-import { LuEye, LuEyeOff } from 'react-icons/lu';
-import { register } from '@/app/lib/auth';
+import { app } from '../../lib/firebase';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
+import { register } from '@/app/actions/auth';
+
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -13,17 +21,35 @@ export default function Register() {
 
   const [error, setError] = useState('');
 
+  const auth = getAuth(app);
+
+  const router = useRouter();
+
   const onHandleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError('');
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
-      console.log(error);
-    } else {
-      await register({ email, password });
-      setName('');
-      setEmail('');
-      setPassword('');
+    try {
+      const credentials = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      await updateProfile(credentials.user, { displayName: name });
+
+      const idToken = await credentials.user.getIdToken(true);
+      const result = await register({ name, email, password }, idToken);
+
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    } catch (error: unknown) {
+      console.error(error);
+      setError(error instanceof Error ? error.message : String(error));
     }
   };
 
