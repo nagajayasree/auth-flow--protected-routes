@@ -36,7 +36,6 @@ export default function Register() {
         password,
       );
       await updateProfile(credentials.user, { displayName: name });
-
       const idToken = await credentials.user.getIdToken(true);
       const result = await register({ name, email, password }, idToken);
 
